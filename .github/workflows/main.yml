@@ -1,0 +1,51 @@
+
+name: complete pipeline
+env:
+  CI: ""
+
+on:
+  push_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [18.x]
+        # See supported Node.js release schedule at https://nodejs.org/en/about/releases/
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+    - run: npm run build --if-present
+    - name: SCA npm audit
+      run: npm run audit
+    - name: SAST nodejsscan
+      uses: ajinabraham/njsscan-action@v6
+      with:
+        args: ./ --missing-controls --sarif
+    - name: deploy test website
+      uses: behe/heroku-build@v1.1
+      with:
+    # Name of Heroku application
+        app-name: dev-pres-secdevops
+    # API key with the deploy role
+        api-key: ad064f8e-6424-4275-9396-1c02acee1df9  
+    - name: DAST OWASP ZAP
+      uses: zaproxy/action-full-scan@v0.4.0
+      with:
+    # Target URL
+        target: https://dev-pres-secdevops.herokuapp.com/
+
+    - name: Secret management Trufflehog
+      uses: UnicornGlobal/trufflehog-actions-scan@v1.0.0
+            
+          
