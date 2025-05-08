@@ -4,7 +4,7 @@ env:
   CI: ""
 
 on:
-  push_request:
+  push:
     branches: [ "main" ]
 
 jobs:
