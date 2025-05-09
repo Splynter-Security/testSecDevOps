@@ -49,5 +49,16 @@ jobs:
 
     - name: Secret management Trufflehog
       uses: UnicornGlobal/trufflehog-actions-scan@v1.0.0
-            
+  SCA:
+    runs-on: ubuntu-latest
+    steps:
+      - name: " checkout git repository"
+        uses: actions/checkout@3df4ab11eba7bda6032a0b82a6bb43b11571feac
+      - name: Generates BoM and upload to OWASP DTrack
+        id: riskscoreFromDT
+        uses:  Quobis/action-owasp-dependecy-track-check@main
+        with:
+          url: 'https://dependency.portasecura.com/'
+          key: '${{ secrets.SECRET_OWASP_DT_KEY }}'
+          language: 'nodejs'           
           
